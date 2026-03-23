@@ -38,34 +38,30 @@ Improve performance by tuning hyperparameters carefully.
 ### Register Number: 212224240039
 ```
 # Define Autoencoder
+
 class DenoisingAutoencoder(nn.Module):
     def __init__(self):
         super(DenoisingAutoencoder, self).__init__()
 
         # Encoder
         self.encoder = nn.Sequential(
-            nn.Flatten(),
-            nn.Linear(28*28, 128),
+            nn.Conv2d(1, 16, 3, stride=2, padding=1),  # 28x28 -> 14x14
             nn.ReLU(),
-            nn.Linear(128, 64),
-            nn.ReLU(),
-            nn.Linear(64, 32)
+            nn.Conv2d(16, 32, 3, stride=2, padding=1), # 14x14 -> 7x7
+            nn.ReLU()
         )
 
         # Decoder
         self.decoder = nn.Sequential(
-            nn.Linear(32, 64),
+            nn.ConvTranspose2d(32, 16, 3, stride=2, padding=1, output_padding=1), # 7x7 -> 14x14
             nn.ReLU(),
-            nn.Linear(64, 128),
-            nn.ReLU(),
-            nn.Linear(128, 28*28),
+            nn.ConvTranspose2d(16, 1, 3, stride=2, padding=1, output_padding=1),  # 14x14 -> 28x28
             nn.Sigmoid()
         )
 
     def forward(self, x):
         x = self.encoder(x)
         x = self.decoder(x)
-        x = x.view(-1, 1, 28, 28)
         return x
 ```
 ```
